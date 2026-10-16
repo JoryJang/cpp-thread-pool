@@ -1,11 +1,11 @@
 # cpp-thread-pool
 
-一个仅头文件的 **C++11 线程池**，无任何第三方依赖，提供两个版本：
+一个单文件引入的 **C++11 线程池**，无任何第三方依赖，提供两个版本：
 
 | 文件 | 定位 |
 |---|---|
-| `thread_pool.hpp` | 原版：面向高吞吐场景的性能优化实现 |
-| `thread_pool_simple.hpp` | 精简版：业务代码够用版，结构经典、易读易维护 |
+| `thread_pool.cpp` | 原版：面向高吞吐场景的性能优化实现 |
+| `thread_pool_simple.cpp` | 精简版：业务代码够用版，结构经典、易读易维护 |
 | `thread_pool_stress.cpp` | 原版的压力/并发测试（TSan / ASan+UBSan 验证过） |
 | `thread_pool_simple_stress.cpp` | 精简版的压力/并发测试 |
 | `examples/example_original.cpp` | 原版全 API 使用示例（可编译运行） |
@@ -13,7 +13,7 @@
 
 ## 特性
 
-- **仅头文件，零依赖**：只需 C++11 编译器，`#include` 即用
+- **单文件，零依赖**：只需 C++11 编译器，`#include "thread_pool.cpp"` 即用
 - **future 风格 API**：`submit()` 返回 `std::future`，任务抛出的异常会在 `future.get()` 处原样重放
 - **优雅关停**：析构时先排空队列里的剩余任务，再 join 全部线程；构造中途失败（如线程数超限）会自动回滚已创建的线程
 - **两个版本 API 一致**：换掉 include 即可互相替换（唯一行为差异见「已知限制」最后一条）
@@ -28,7 +28,7 @@
 ## 快速开始
 
 ```cpp
-#include "thread_pool.hpp"   // 或 "thread_pool_simple.hpp"
+#include "thread_pool.cpp"   // 或 "thread_pool_simple.cpp"
 #include <iostream>
 
 int main() {
@@ -70,7 +70,7 @@ g++ -std=c++11 -I. -O2 -pthread examples/example_simple.cpp -o example_simple &&
 实参按值拷贝进任务（`std::bind` 语义），成员函数传对象指针：
 
 ```cpp
-#include "thread_pool.hpp"
+#include "thread_pool.cpp"
 #include <string>
 #include <iostream>
 
@@ -104,7 +104,7 @@ int main() {
 `queued_tasks()` 读到 0 只说明队列空了，不代表任务做完。**等待全部完成的正确姿势是回收所有 future**：
 
 ```cpp
-#include "thread_pool.hpp"
+#include "thread_pool.cpp"
 #include <vector>
 #include <chrono>
 #include <thread>
@@ -147,7 +147,7 @@ pool.submit([shared] {
 ### 观测池状态（仅原版）
 
 ```cpp
-#include "thread_pool.hpp"
+#include "thread_pool.cpp"
 #include <iostream>
 
 int main() {
@@ -176,7 +176,7 @@ dev::ThreadPool pool(0, /*pin_to_cores=*/true);  // 0 = 按硬件并发数，钉
 
 ## 版本选择
 
-| | `thread_pool.hpp`（原版） | `thread_pool_simple.hpp`（精简版） |
+| | `thread_pool.cpp`（原版） | `thread_pool_simple.cpp`（精简版） |
 |---|---|---|
 | 任务队列 | 每 worker 独立 deque + 偷取 | 单一队列 + 一把锁 + 一个条件变量 |
 | 任务对象存储 | 64 字节内联缓冲，零额外堆分配 | `std::function`（超限时堆分配） |

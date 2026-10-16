@@ -17,8 +17,8 @@
 // 已知限制：任务函数内部不要对同一个池产生的 future 调用 get()。
 // 所有 worker 可能都卡在"等队列里的任务"，而没有 worker 去执行它 —— 直接死锁。
 // 要并发就只在调用方线程回收 future，或者换用会"帮等的人干活"的 fork-join 框架。
-#ifndef DEV_THREAD_POOL_HPP
-#define DEV_THREAD_POOL_HPP
+#ifndef DEV_THREAD_POOL_CPP
+#define DEV_THREAD_POOL_CPP
 
 #include <atomic>
 #include <condition_variable>

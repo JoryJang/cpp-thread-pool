@@ -1,6 +1,6 @@
 // C++11 线程池 —— 精简版（业务代码够用版）。
 //
-// 由原版 thread_pool.hpp 精简而来：删去 InplaceFunction 类型擦除、每 worker 独立
+// 由原版 thread_pool.cpp 精简而来：删去 InplaceFunction 类型擦除、每 worker 独立
 // 队列 + 偷取、缓存行填充、CPU 绑核等性能优化，换成"单一队列 + 一把锁 + 一个
 // 条件变量"的经典结构。
 //
@@ -16,8 +16,8 @@
 //
 // API 差异：删掉了 pin_to_cores 构造参数与 tasks_completed()，其余签名不变，
 // 换掉 include 即可直接替换使用。
-#ifndef DEV_THREAD_POOL_SIMPLE_HPP
-#define DEV_THREAD_POOL_SIMPLE_HPP
+#ifndef DEV_THREAD_POOL_SIMPLE_CPP
+#define DEV_THREAD_POOL_SIMPLE_CPP
 
 #include <condition_variable>
 #include <cstddef>
