@@ -6,13 +6,15 @@
 |---|---|
 | `thread_pool.hpp` | 原版：面向高吞吐场景的性能优化实现 |
 | `thread_pool_simple.hpp` | 精简版：业务代码够用版，结构经典、易读易维护 |
+| `thread_pool_stress.cpp` | 原版的压力/并发测试（TSan / ASan+UBSan 验证过） |
+| `thread_pool_simple_stress.cpp` | 精简版的压力/并发测试 |
 
 ## 特性
 
 - **仅头文件，零依赖**：只需 C++11 编译器，`#include` 即用
 - **future 风格 API**：`submit()` 返回 `std::future`，任务抛出的异常会在 `future.get()` 处原样重放
 - **优雅关停**：析构时先排空队列里的剩余任务，再 join 全部线程；构造中途失败（如线程数超限）会自动回滚已创建的线程
-- **两个版本语义一致**：换掉 include 即可互相替换
+- **两个版本 API 一致**：换掉 include 即可互相替换（唯一行为差异见「已知限制」最后一条）
 
 原版额外包含的性能设计：
 
@@ -199,12 +201,30 @@ std::vector<std::uint64_t> tasks_completed() const;  // 仅原版
 // 每个 worker 各自完成的任务数，用于观察负载是否摊开
 ```
 
+## 压力测试
+
+两个互相独立的并发/压力测试程序，覆盖：关停排空积压、空池反复构造析构、丢唤醒检测、任务内嵌套提交、被阻塞挤占时仍能推进、任务异常隔离，以及（ASan 构建 + `-DTP_FAULT_INJECTION`）构造期线程创建失败的回滚。
+
+构建（两种互斥的 sanitizer，要分开编；以原版为例，精简版把源文件换成 `thread_pool_simple_stress.cpp`、输出名换掉即可）：
+
+```bash
+# TSan（找数据竞争、丢唤醒导致的超时）
+g++ -std=c++11 -O1 -g -fsanitize=thread thread_pool_stress.cpp -pthread -o stress_tsan
+
+# ASan+UBSan（找泄漏、越界；-DTP_FAULT_INJECTION 打开"线程创建失败"用例，仅 Linux）
+g++ -std=c++11 -O1 -g -fsanitize=address,undefined -DTP_FAULT_INJECTION thread_pool_stress.cpp -pthread -ldl -o stress_asan
+```
+
+环境变量 `STRESS_SCALE`（默认 1）按倍数放大迭代次数。任何断言失败直接 abort 并打印位置；"丢唤醒"表现为 future 在超时内不就绪。
+
 ## 已知限制
 
 **不要在任务内部对同一个池 `submit` 出的 future 调用 `get()`。**
 所有 worker 可能都卡在"等队列里的任务"，而没有 worker 去执行它——直接死锁。需要并发等待结果时，只在调用方线程回收 future，或改用会"帮等待者干活"的 fork-join 框架。
 
 另外注意：两个文件定义的都是 `dev::ThreadPool`，**同一编译单元只包含其中一个**。
+
+两个版本唯一的行为差异在**关停期的嵌套提交**：原版的 `submit()` 不检查 `stop_`，析构排空期间由正在运行的任务提交的后代任务仍会入队执行完；精简版在析构开始后 `submit()` 抛 `std::runtime_error`。若依赖"提交完根任务立刻析构池、后代也会跑完"（fork-join 展开场景），请用原版。
 
 ## 平台要求
 
