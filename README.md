@@ -8,6 +8,8 @@
 | `thread_pool_simple.hpp` | 精简版：业务代码够用版，结构经典、易读易维护 |
 | `thread_pool_stress.cpp` | 原版的压力/并发测试（TSan / ASan+UBSan 验证过） |
 | `thread_pool_simple_stress.cpp` | 精简版的压力/并发测试 |
+| `examples/example_original.cpp` | 原版全 API 使用示例（可编译运行） |
+| `examples/example_simple.cpp` | 精简版全 API 使用示例（可编译运行） |
 
 ## 特性
 
@@ -55,7 +57,13 @@ g++ -std=c++11 -O2 -pthread main.cpp -o main
 
 ## 使用示例
 
-以下示例对两个版本均适用（标注「仅原版」的除外）。
+**完整可运行的示例**见 [`examples/example_original.cpp`](examples/example_original.cpp)（含 `pin_to_cores`、`tasks_completed()` 等原版独有接口）与 [`examples/example_simple.cpp`](examples/example_simple.cpp)，逐节覆盖全部公开 API：
+
+```bash
+g++ -std=c++11 -I. -O2 -pthread examples/example_simple.cpp -o example_simple && ./example_simple
+```
+
+下面是节选片段（标注「仅原版」的除外）。
 
 ### 提交带参数的任务
 
