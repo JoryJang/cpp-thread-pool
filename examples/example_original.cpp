@@ -1,13 +1,13 @@
-// thread_pool.cpp（原版）的完整使用示例。C++11，覆盖全部公开 API。
+// thread_pool.hpp（原版）的完整使用示例。C++11，覆盖全部公开 API。
 //
-// 构建（在仓库根目录执行，-I. 用于找到库文件）：
+// 构建（在仓库根目录执行，-I. 用于找到头文件）：
 //   g++ -std=c++11 -I. -O2 -pthread examples/example_original.cpp -o example_original
 //
-// 注意：thread_pool.cpp 与 thread_pool_simple.cpp 都定义 dev::ThreadPool，
+// 注意：thread_pool.hpp 与 thread_pool_simple.hpp 都定义 dev::ThreadPool，
 // 同一编译单元只能包含其中一个，所以两个版本各有一个示例文件。
 // 第 1 节的 pin_to_cores、第 10 节的 tasks_completed() 是原版独有接口。
 
-#include "thread_pool.cpp"
+#include "thread_pool.hpp"
 
 #include <atomic>
 #include <chrono>

@@ -1,4 +1,4 @@
-// thread_pool_simple.cpp 的压力/并发测试。C++11。
+// thread_pool_simple.hpp 的压力/并发测试。C++11。
 //
 // 与 thread_pool_stress.cpp（原版）的差异：
 //   - 测试 4（嵌套提交）：原版的 submit() 不检查 stop_，"提交完根任务立刻析构池"
@@ -19,7 +19,7 @@
 // 环境变量 STRESS_SCALE（默认 1）按倍数放大迭代次数。
 // 任何断言失败直接 abort，并打印位置；"丢唤醒"表现为 future 在超时内不就绪。
 
-#include "thread_pool_simple.cpp"
+#include "thread_pool_simple.hpp"
 
 #include <atomic>
 #include <chrono>

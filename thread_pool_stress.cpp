@@ -1,4 +1,4 @@
-// thread_pool.cpp 的压力/并发测试。C++11。
+// thread_pool.hpp 的压力/并发测试。C++11。
 //
 // 构建（两种互斥的 sanitizer，要分开编）：
 //   TSan（找数据竞争、丢唤醒导致的超时）：
@@ -12,7 +12,7 @@
 // 环境变量 STRESS_SCALE（默认 1）按倍数放大迭代次数。
 // 任何断言失败直接 abort，并打印位置；"丢唤醒"表现为 future 在超时内不就绪。
 
-#include "thread_pool.cpp"
+#include "thread_pool.hpp"
 
 #include <atomic>
 #include <chrono>
